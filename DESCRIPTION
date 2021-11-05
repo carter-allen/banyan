@@ -1,0 +1,22 @@
+Package: banyan
+Title: Bayesian network analysis of spatially resolved single cell data
+Version: 0.99.1
+Authors@R: 
+    c(person(given = "Carter",
+           family = "Allen",
+           role = c("aut", "cre"),
+           email = "carter.allen12@gmail.com",
+           comment = c(ORCID = "0000-0001-6937-7234")),
+     person(given = "Dongjun",
+           family = "Chung",
+           role = c("aut")))
+Description: Allows for network-based Bayesian analysis of spatially resolved single cell data. The core model is an extension of the stochastic block model (SBM) to integration of spatial and gene expression cell-cell similarity network. The package allows for robust detection of cell sub-populations and interaction among them using a Bayesian probabilistic framework. Numerous visualization functions are included for interpretation of results.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+LinkingTo: Rcpp, RcppArmadillo
+Imports: Rcpp, igraph, stats, mlsbm, Seurat, scran
+Depends: 
+    R (>= 4.0.0)
