@@ -143,6 +143,7 @@ fit_banyan <- function(seurat_obj = NULL,
   bic =  (max(lls) + 2*K_param*log(n))
   fit$bic = bic
   
-  # return as list
+  # return as banyan object
+  class(fit) <- "banyan"
   return(fit)
 }

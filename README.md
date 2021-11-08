@@ -26,3 +26,43 @@ The `igraph` package is used to handle standard network routines. We also allow 
 
 ## Usage
 
+Below are `R` commands for analyzing a publicly available anterior mouse brain data set published by [10X Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Anterior).
+
+```
+# packages
+library(SeuratData)
+library(Seurat)
+library(banyan)
+library(patchwork)
+
+# load data
+InstallData("stxBrain")
+brain <- LoadData("stxBrain","anterior1")
+
+# run Seurat processing steps
+brain <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
+brain <- RunPCA(brain, assay = "SCT", verbose = FALSE)
+
+# fit banyan model
+brain_fit <- fit_banyan(seurat_obj = brain, K = 6)
+save(brain_fit,file = paste0(data_dir,"brain_fit_banyan.RData"))
+load(paste0(data_dir,"brain_fit_banyan.RData"))
+
+# plot labels
+plot_labels(brain_fit)
+
+# calculate scores
+brain_fit <- get_scores(brain_fit)
+
+# plot uncertainty
+plot_uncertainty(brain_fit)
+
+# plot propensity
+plot_propensity(brain_fit,k = 1) + plot_propensity(brain_fit,k = 2)
+
+# plot connectivity matrix
+plot_connectivity_matrix(brain_fit)
+
+# plot connectivity interval
+plot_connectivity_intervals(brain_fit) 
+```
