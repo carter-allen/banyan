@@ -5,11 +5,12 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2 dplyr
+#' @importFrom rlang .data
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyselect everything
+#' @importFrom stats median quantile reorder
 #' @export
 #' @return A ggplot object
-#' @examples
 #' 
 plot_connectivity_intervals <- function(fit)
 {
@@ -39,17 +40,17 @@ plot_connectivity_intervals <- function(fit)
                         values_to = "value")
   
   g <- thetas_df_long %>%
-    mutate(pair = substr(theta,7,8),
-           Type = ifelse(substr(theta,7,7) == substr(theta,8,8),
+    mutate(pair = substr(.data$theta,7,8),
+           Type = ifelse(substr(.data$theta,7,7) == substr(.data$theta,8,8),
                          "Within Community",
                          "Between Community")) %>%
-    group_by(pair,Type) %>%
-    summarize(Connectivity = median(value),
-              LB = quantile(value,probs = 0.025),
-              UB = quantile(value,probs = 0.975)) %>%
-    ggplot(.,aes(x = stats::reorder(pair,-Connectivity),y = Connectivity,color = Type)) + 
+    group_by(.data$pair,.data$Type) %>%
+    summarize(Connectivity = median(.data$value),
+              LB = quantile(.data$value,probs = 0.025),
+              UB = quantile(.data$value,probs = 0.975)) %>%
+    ggplot(.data$.,aes(x = stats::reorder(.data$pair,-.data$Connectivity),y = .data$Connectivity,color = .data$Type)) + 
     geom_point() + 
-    geom_errorbar(aes(ymin = LB, ymax = UB)) + 
+    geom_errorbar(aes(ymin = .data$LB, ymax = .data$UB)) + 
     theme_classic() + 
     theme(axis.text.x = element_text(family = "serif",size = 12),
           axis.text.y = element_text(family = "serif",size = 12),

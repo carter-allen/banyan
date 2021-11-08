@@ -6,16 +6,16 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2
+#' @importFrom rlang .data
 #' @export
 #' @return A ggplot object
-#' @examples
 #' 
 plot_propensity <- function(fit, k = 1)
 {
   coords = fit$coords
   Propensity = fit$C_scores[,k]
   coords$Propensity = Propensity
-  g = ggplot(data = coords, aes(x = x, y = y, color = Propensity)) + 
+  g = ggplot(data = coords, aes(x = .data$x, y = .data$y, color = .data$Propensity)) + 
     geom_point() + 
     theme_classic() + 
     xlab(NULL) + 

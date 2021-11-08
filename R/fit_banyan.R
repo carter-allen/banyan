@@ -6,7 +6,7 @@
 #' @param coords A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp.
 #' @param K The number of sub-populations to infer
 #' @param n_pcs The number of principal components to use from the Seurat object
-#' @param R A length 2 vector of integers for the number of neighbors to use. R[1] corresponds to the number of neighbors in gene expression network and R[2] for spatial.
+#' @param R A length 2 vector of integers for the number of neighbors to use. 1st element corresponds to the number of neighbors in gene expression network and 2nd element for spatial.
 #' @param z_init Logical for whether or not to initialize the community allocation vector using the Louvain algorithm applied to the gene expression layer.
 #' @param a0 Dirichlet prior parameter (shared across all communities)
 #' @param b10 Beta prior number of connections
@@ -21,7 +21,6 @@
 #' @importFrom scran buildKNNGraph
 #' @export
 #' @return A list of MCMC samples, including the MAP estimate of cluster indicators (z)
-#' @examples
 #' 
 fit_banyan <- function(seurat_obj = NULL,
                        exp = NULL,

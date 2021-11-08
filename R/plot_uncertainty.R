@@ -5,16 +5,16 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2
+#' @importFrom rlang .data
 #' @export
 #' @return A ggplot object
-#' @examples
 #' 
 plot_uncertainty <- function(fit)
 {
   coords = fit$coords
   Uncertainty = fit$U_scores
   coords$Uncertainty = Uncertainty
-  g = ggplot(data = coords, aes(x = x, y = y, color = Uncertainty)) + 
+  g = ggplot(data = coords, aes(x = .data$x, y = .data$y, color = .data$Uncertainty)) + 
     geom_point() + 
     theme_classic() + 
     xlab(NULL) + 

@@ -7,9 +7,10 @@
 #' @import ggplot2 dplyr
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyselect everything
+#' @importFrom rlang .data
+#' @importFrom stats median
 #' @export
 #' @return A ggplot object
-#' @examples
 #' 
 
 plot_connectivity_matrix <- function(fit)
@@ -40,11 +41,11 @@ plot_connectivity_matrix <- function(fit)
                         values_to = "value")
   
   g <- thetas_df_long %>%
-    mutate(x_val = substr(theta,7,7),
-           y_val = substr(theta,8,8)) %>%
-    group_by(x_val,y_val) %>%
-    summarize(Connectivity = median(value)) %>%
-    ggplot(.,aes(x = x_val,y = y_val,fill = Connectivity)) + 
+    mutate(x_val = substr(.data$theta,7,7),
+           y_val = substr(.data$theta,8,8)) %>%
+    group_by(.data$x_val,.data$y_val) %>%
+    summarize(Connectivity = median(.data$value)) %>%
+    ggplot(.data$.,aes(x = .data$x_val,y = .data$y_val,fill = .data$Connectivity)) + 
     geom_tile() + 
     theme_classic() + 
     scale_fill_viridis_c(option = "A") + 

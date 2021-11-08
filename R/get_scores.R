@@ -4,9 +4,9 @@
 #' @param fit A list returned by fit_banyan()
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #' @export
 #' @return A list with populated entries C_scores (N x K matrix for cell type propensities) and U_scores (N x 1 vector of uncertainty scores)
-#' @examples
 #' 
 get_scores <- function(fit)
 {
