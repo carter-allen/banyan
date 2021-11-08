@@ -5,6 +5,7 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2 dplyr
+#' @import patchwork
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyselect everything
@@ -39,7 +40,7 @@ plot_connectivity_intervals <- function(fit)
                         names_to = "theta",
                         values_to = "value")
   
-  g <- thetas_df_long %>%
+  g_df = thetas_df_long %>%
     mutate(pair = substr(.data$theta,7,8),
            Type = ifelse(substr(.data$theta,7,7) == substr(.data$theta,8,8),
                          "Within Community",
@@ -47,17 +48,43 @@ plot_connectivity_intervals <- function(fit)
     group_by(.data$pair,.data$Type) %>%
     summarize(Connectivity = median(.data$value),
               LB = quantile(.data$value,probs = 0.025),
-              UB = quantile(.data$value,probs = 0.975)) %>%
-    ggplot(.data$.,aes(x = stats::reorder(.data$pair,-.data$Connectivity),y = .data$Connectivity,color = .data$Type)) + 
+              UB = quantile(.data$value,probs = 0.975))
+  
+  g_df_within = g_df %>%
+    filter(.data$Type == "Within Community")
+  
+  g_df_between <- g_df %>%
+    filter(.data$Type == "Between Community")
+  
+  g1 = ggplot(g_df_within,aes(x = stats::reorder(.data$pair,-.data$Connectivity),
+                      y = .data$Connectivity)) + 
     geom_point() + 
     geom_errorbar(aes(ymin = .data$LB, ymax = .data$UB)) + 
     theme_classic() + 
+    # scale_color_viridis_c(option = "A") + 
     theme(axis.text.x = element_text(family = "serif",size = 12),
           axis.text.y = element_text(family = "serif",size = 12),
           text = element_text(family = "serif"),
           axis.title.x = element_text(family = "serif", face = "bold"),
           axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population Pair") + 
-    ylab("Connectivity") 
-  return(g)
+    ylab("Connectivity") +
+    ggtitle("Within Community Connectivity")
+  
+  g2 = ggplot(g_df_between,aes(x = stats::reorder(.data$pair,-.data$Connectivity),
+                              y = .data$Connectivity)) + 
+    geom_point() + 
+    geom_errorbar(aes(ymin = .data$LB, ymax = .data$UB)) + 
+    theme_classic() + 
+    # scale_color_viridis_c(option = "A") + 
+    theme(axis.text.x = element_text(family = "serif",size = 12),
+          axis.text.y = element_text(family = "serif",size = 12),
+          text = element_text(family = "serif"),
+          axis.title.x = element_text(family = "serif", face = "bold"),
+          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
+    xlab("Cell Sub-Population Pair") + 
+    ylab("Connectivity") +
+    ggtitle("Between Community Connectivity")
+  
+  return(g1 + g2)
 }

@@ -5,6 +5,7 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2 dplyr
+#' @import patchwork
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyselect everything
 #' @importFrom rlang .data
@@ -40,12 +41,24 @@ plot_connectivity_matrix <- function(fit)
                         names_to = "theta",
                         values_to = "value")
   
-  g <- thetas_df_long %>%
+  g_df = thetas_df_long %>%
     mutate(x_val = substr(.data$theta,7,7),
-           y_val = substr(.data$theta,8,8)) %>%
-    group_by(.data$x_val,.data$y_val) %>%
-    summarize(Connectivity = median(.data$value)) %>%
-    ggplot(.data$.,aes(x = .data$x_val,y = .data$y_val,fill = .data$Connectivity)) + 
+           y_val = substr(.data$theta,8,8),
+           Type = ifelse(substr(.data$theta,7,7) == substr(.data$theta,8,8),
+                         "Within Community",
+                         "Between Community")) %>%
+    group_by(.data$x_val,.data$y_val,.data$Type) %>%
+    summarize(Connectivity = median(.data$value))
+  
+  g_df_within <- g_df %>%
+    filter(.data$Type == "Within Community")
+  
+  g_df_between <- g_df %>%
+    filter(.data$Type == "Between Community")
+  
+  g1 = ggplot(data = g_df_within,aes(x = .data$x_val,
+                            y = .data$y_val,
+                            fill = .data$Connectivity)) + 
     geom_tile() + 
     theme_classic() + 
     scale_fill_viridis_c(option = "A") + 
@@ -56,6 +69,28 @@ plot_connectivity_matrix <- function(fit)
           axis.title.x = element_text(family = "serif", face = "bold"),
           axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population") + 
-    ylab("Cell Sub-Population") 
-  return(g)
+    ylab("Cell Sub-Population") + 
+    ggtitle("Within Community Connectivity") +
+    scale_x_discrete(breaks = 1:K) + 
+    scale_y_discrete(breaks = 1:K)
+  
+  g2 = ggplot(data = g_df_between,aes(x = .data$x_val,
+                                     y = .data$y_val,
+                                     fill = .data$Connectivity)) + 
+    geom_tile() + 
+    theme_classic() + 
+    scale_fill_viridis_c(option = "A") + 
+    coord_flip() +
+    theme(axis.text.x = element_text(family = "serif",size = 12),
+          axis.text.y = element_text(family = "serif",size = 12),
+          text = element_text(family = "serif"),
+          axis.title.x = element_text(family = "serif", face = "bold"),
+          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
+    xlab("Cell Sub-Population") + 
+    ylab("Cell Sub-Population") + 
+    ggtitle("Between Community Connectivity") +
+    scale_x_discrete(breaks = 1:K) + 
+    scale_y_discrete(breaks = 1:K)
+  
+  return(g1 + g2)
 }

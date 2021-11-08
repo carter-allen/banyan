@@ -119,6 +119,7 @@ fit_banyan <- function(seurat_obj = NULL,
   G2 <- scran::buildKNNGraph(coords,r2,transposed = TRUE)
   A2 <- igraph::as_adjacency_matrix(G2,sparse = FALSE)
   
+  # compile into multi-layer network
   AL <- list(A1,A2)
   
   fit <- mlsbm::fit_mlsbm(A = AL,
@@ -131,5 +132,17 @@ fit_banyan <- function(seurat_obj = NULL,
                           burn = burn,
                           verbose = verbose,
                           r = s)
+  # return coordinates for plotting
+  fit$coords = coords
+  
+  # get BIC
+  lls = fit$logf
+  K = fit$K
+  n = length(lls)
+  K_param = choose(K,2) + K + n
+  bic =  (max(lls) + 2*K_param*log(n))
+  fit$bic = bic
+  
+  # return as list
   return(fit)
 }
