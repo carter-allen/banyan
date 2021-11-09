@@ -43,7 +43,7 @@ fit_banyan <- function(seurat_obj = NULL,
     # check PCA reductions exist in the Seurat object
     if(!is.null(seurat_obj@reductions$pca))
     {
-      exp <- seurat_obj@reductions$pca@cell.embeddings[,1:2]
+      exp <- seurat_obj@reductions$pca@cell.embeddings[,1:n_pcs]
     }
     else
     {
