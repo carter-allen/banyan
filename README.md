@@ -12,17 +12,16 @@ devtools::install_github("carter-allen/banyan")
 
 ## Requirements
 
-The `banyan` package has multiple dependencies, one of which being `mlsbm`. The `mlsbm` package contains the core implementation of the Bayesian SBM written with `Rcpp`. You can install the development version of `mlsbm` from GitHub, or the stable version from CRAN using:
+The `banyan` package has multiple dependencies, one of which being `mlsbm`. The `mlsbm` package contains the core implementation of the Bayesian SBM written with `Rcpp`. You can install the development version of `mlsbm` from GitHub using:
 
 ```
 # development version
 devtools::install_github("carter-allen/mlsbm")
-
-# stable release
-install.packages("mlsbm")
 ```
 
-The `igraph` package is used to handle standard network routines. We also allow for integration with standard `Seurat` workflows by accommodating Seurat objects as inputs.
+The `igraph` package is used to handle standard network routines and initialization. Note, due to the need for a resolution parameter in the initialization of cluster allocations with `igraph::cluster_louvain()` the [development version](https://carter-allen.github.io/igraph_1.2.5.louvain_resolution.tar.gz) of `igraph` must be installed. See [here](https://github.com/igraph/rigraph/issues/239) for more details.
+
+We also allow for integration with standard `Seurat` workflows by accommodating Seurat objects as inputs.
 
 ## Vignettes
 
