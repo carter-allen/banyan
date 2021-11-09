@@ -44,8 +44,8 @@ get_scores <- function(fit)
         }
       }
     }
-    C_scores[i,] <- exp(pi_star)
-    U_scores[i] <- 1 - exp(pi_star[z_map[i]])
+    C_scores[i,] <- (pi_star)
+    U_scores[i] <- 1 - (pi_star[z_map[i]])
   }
   close(pb)
   

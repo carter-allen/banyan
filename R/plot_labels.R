@@ -12,6 +12,8 @@
 plot_labels <- function(fit)
 {
   coords = fit$coords
+  coords = as.data.frame(coords)
+  colnames(coords) = c("x","y")
   z_map = fit$z
   coords$label = as.factor(z_map)
   g = ggplot(data = coords, aes(x = .data$x, y = .data$y, color = .data$label)) + 

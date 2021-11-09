@@ -24,6 +24,10 @@ install.packages("mlsbm")
 
 The `igraph` package is used to handle standard network routines. We also allow for integration with standard `Seurat` workflows by accommodating Seurat objects as inputs.
 
+## Vignettes
+
+- [Sagital Mouse Brain Data (10X Visium)](https://carter-allen.github.io/banyan_stxBrain.html)
+
 ## Usage
 
 Below are `R` commands for analyzing a publicly available anterior mouse brain data set published by [10X Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Anterior).

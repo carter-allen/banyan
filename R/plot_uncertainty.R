@@ -12,6 +12,8 @@
 plot_uncertainty <- function(fit)
 {
   coords = fit$coords
+  coords = as.data.frame(coords)
+  colnames(coords) = c("x","y")
   Uncertainty = fit$U_scores
   coords$Uncertainty = Uncertainty
   g = ggplot(data = coords, aes(x = .data$x, y = .data$y, color = .data$Uncertainty)) + 

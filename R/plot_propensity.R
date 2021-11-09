@@ -13,6 +13,8 @@
 plot_propensity <- function(fit, k = 1)
 {
   coords = fit$coords
+  coords = as.data.frame(coords)
+  colnames(coords) = c("x","y")
   Propensity = fit$C_scores[,k]
   coords$Propensity = Propensity
   g = ggplot(data = coords, aes(x = .data$x, y = .data$y, color = .data$Propensity)) + 

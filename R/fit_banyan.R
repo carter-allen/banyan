@@ -133,7 +133,7 @@ fit_banyan <- function(seurat_obj = NULL,
                           verbose = verbose,
                           r = s)
   # return coordinates for plotting
-  fit$coords = coords
+  fit$coords = as.data.frame(coords)
   
   # get BIC
   lls = fit$logf
