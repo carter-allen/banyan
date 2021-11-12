@@ -56,8 +56,8 @@ fit_banyan <- function(seurat_obj = NULL,
     }
     else
     {
-      coords_x <- seurat_obj@images[[1]]@coordinates$col
-      coords_y <- seurat_obj@images[[1]]@coordinates$row
+      coords_x <- seurat_obj@images[[1]]@coordinates[,1]
+      coords_y <- seurat_obj@images[[1]]@coordinates[,2]
       coords <- data.frame(x = coords_x,
                            y = coords_y)
     }

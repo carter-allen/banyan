@@ -27,6 +27,8 @@ We also allow for integration with standard `Seurat` workflows by accommodating 
 
 - [Sagital Mouse Brain Data (10X Visium)](https://carter-allen.github.io/banyan_stxBrain.html)
 
+- [Invasive Ductal Carcinoma (10X Visium)](https://carter-allen.github.io/banyan_breast_cancer.html)
+
 ## Usage
 
 Below are `R` commands for analyzing a publicly available anterior mouse brain data set published by [10X Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Anterior).
