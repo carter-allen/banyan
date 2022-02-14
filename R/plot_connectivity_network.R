@@ -5,7 +5,7 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2 ggraph dplyr
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_longer separate
 #' @importFrom tidyselect everything
 #' @importFrom rlang .data
 #' @importFrom stats median
@@ -28,10 +28,13 @@ plot_connectivity_network <- function(fit)
     for(k2 in k1:K)
     {
       thetas_df[,k_count] = THETA[,k1,k2]
-      t_names <- c(t_names,paste0("theta_",k1,k2))
+      t_names <- c(t_names,paste0("theta_",k1,"-",k2))
       k_count = k_count + 1
     }
   }
+  colnames(thetas_df) <- t_names
+  thetas_df <- as.data.frame(thetas_df)
+  
   colnames(thetas_df) <- t_names
   thetas_df <- as.data.frame(thetas_df)
   
@@ -41,9 +44,17 @@ plot_connectivity_network <- function(fit)
                         values_to = "value")
   
   g_df = thetas_df_long %>%
-    mutate(x_val = substr(.data$theta,7,7),
-           y_val = substr(.data$theta,8,8),
-           Type = ifelse(substr(.data$theta,7,7) == substr(.data$theta,8,8),
+    separate(col = .data$theta, 
+             sep = "_",
+             into = c("param","comb"), 
+             remove = FALSE) %>%
+    separate(col = .data$comb,
+             sep = "-",
+             into = c("x_val","y_val"),
+             remove = FALSE) %>%
+    mutate(x_val = as.numeric(.data$x_val),
+           y_val = as.numeric(.data$y_val)) %>%
+    mutate(Type = ifelse(.data$x_val == .data$y_val,
                          "Within Community",
                          "Between Community")) %>%
     group_by(.data$x_val,.data$y_val,.data$Type) %>%
@@ -60,7 +71,7 @@ plot_connectivity_network <- function(fit)
   z_map = fit$z
   size = as.vector(table(z_map))
   g_df_size = data.frame(
-    Community = as.character(1:K),
+    Community = 1:K,
     Size = size
   )
   g_df_within = inner_join(g_df_within,g_df_size, by = "Community")
@@ -75,7 +86,8 @@ plot_connectivity_network <- function(fit)
   G <- graph_from_data_frame(g_df_between,
                              directed = FALSE,
                              vertices = g_df_within)
-  G_layout <- create_layout(G, layout = "igraph", algorithm = "nicely")
+  
+  G_layout <- create_layout(G, layout = "linear", circular = TRUE)
   
   g_ret <- ggraph(G_layout) +
     geom_edge_link(aes(width = .data$Between, alpha = .data$Between)) + 

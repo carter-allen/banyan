@@ -6,7 +6,7 @@
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @import ggplot2 dplyr
 #' @import patchwork
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_longer separate
 #' @importFrom tidyselect everything
 #' @importFrom rlang .data
 #' @importFrom stats median
@@ -29,7 +29,7 @@ plot_connectivity_matrix <- function(fit)
     for(k2 in k1:K)
     {
       thetas_df[,k_count] = THETA[,k1,k2]
-      t_names <- c(t_names,paste0("theta_",k1,k2))
+      t_names <- c(t_names,paste0("theta_",k1,"-",k2))
       k_count = k_count + 1
     }
   }
@@ -42,9 +42,17 @@ plot_connectivity_matrix <- function(fit)
                         values_to = "value")
   
   g_df = thetas_df_long %>%
-    mutate(x_val = substr(.data$theta,7,7),
-           y_val = substr(.data$theta,8,8),
-           Type = ifelse(substr(.data$theta,7,7) == substr(.data$theta,8,8),
+    separate(col = .data$theta, 
+             sep = "_",
+             into = c("param","comb"), 
+             remove = FALSE) %>%
+    separate(col = .data$comb,
+             sep = "-",
+             into = c("x_val","y_val"),
+             remove = FALSE) %>%
+    mutate(x_val = as.numeric(.data$x_val),
+           y_val = as.numeric(.data$y_val)) %>%
+    mutate(Type = ifelse(.data$x_val == .data$y_val,
                          "Within Community",
                          "Between Community")) %>%
     group_by(.data$x_val,.data$y_val,.data$Type) %>%
@@ -56,8 +64,8 @@ plot_connectivity_matrix <- function(fit)
   g_df_between <- g_df %>%
     filter(.data$Type == "Between Community")
   
-  g1 = ggplot(data = g_df_within,aes(x = .data$x_val,
-                            y = .data$y_val,
+  g1 = ggplot(data = g_df_within,aes(x = as.numeric(.data$x_val),
+                            y = as.numeric(.data$y_val),
                             fill = .data$Connectivity)) + 
     geom_tile() + 
     theme_classic() + 
@@ -71,11 +79,11 @@ plot_connectivity_matrix <- function(fit)
     xlab("Cell Sub-Population") + 
     ylab("Cell Sub-Population") + 
     ggtitle("Within Community Connectivity") +
-    scale_x_discrete(breaks = 1:K) + 
-    scale_y_discrete(breaks = 1:K)
+    scale_x_continuous(breaks = 1:K, expand = c(0,0)) + 
+    scale_y_continuous(breaks = 1:K, expand = c(0,0))
   
-  g2 = ggplot(data = g_df_between,aes(x = .data$x_val,
-                                     y = .data$y_val,
+  g2 = ggplot(data = g_df_between,aes(x = as.numeric(.data$x_val),
+                                     y = as.numeric(.data$y_val),
                                      fill = .data$Connectivity)) + 
     geom_tile() + 
     theme_classic() + 
@@ -89,8 +97,8 @@ plot_connectivity_matrix <- function(fit)
     xlab("Cell Sub-Population") + 
     ylab("Cell Sub-Population") + 
     ggtitle("Between Community Connectivity") +
-    scale_x_discrete(breaks = 1:K) + 
-    scale_y_discrete(breaks = 1:K)
+    scale_x_continuous(breaks = 1:K, expand = c(0,0)) + 
+    scale_y_continuous(breaks = 1:K, expand = c(0,0))
   
   return(g1 + g2)
 }
