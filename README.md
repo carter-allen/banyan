@@ -1,4 +1,4 @@
-# banyan <img src="inst/logo/banyan_blue.png" align="right" width="150" />
+# banyan <img src="https://carter-allen.github.io/banyan_blue.png" align="right" width="150" />
 ## Bayesian network models for spatially-resolved single-cell data
 
 The `banyan` package allows for network-based Bayesian analysis of spatially resolved single cell data. The core model is an extension of the stochastic block model (SBM) to integration of spatial and gene expression cell-cell similarity network. The package allows for robust detection of cell sub-populations and interaction among them using a Bayesian probabilistic framework. 
