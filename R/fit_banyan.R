@@ -2,12 +2,11 @@
 #'
 #' This function allows you to fit the Bayesian multi-layer SBM for integration of spatial and gene expression data for identifying cell sub-populations
 #' @param seurat_obj A Seurat object with PCA reduction and spatial coordinates. If provided, the exp and coords arguments are ignored
-#' @param exp Gene expression dimension reduction feature matrix (e.g., PCs) with rows as cells and columns as features
-#' @param coords A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp.
+#' @param exp A binary adjacency matrix encoding the gene expression network. Not used if seurat_obj is provided. 
+#' @param coords_df A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp. Not used if seurat_obj is provided. 
 #' @param K The number of sub-populations to infer
 #' @param n_pcs The number of principal components to use from the Seurat object
 #' @param R A length 2 vector of integers for the number of neighbors to use. 1st element corresponds to the number of neighbors in gene expression network and 2nd element for spatial.
-#' @param z_init Logical for whether or not to initialize the community allocation vector using the Louvain algorithm applied to the gene expression layer.
 #' @param a0 Dirichlet prior parameter (shared across all communities)
 #' @param b10 Beta prior number of connections
 #' @param b20 Beta prior number on non-edges
@@ -18,17 +17,16 @@
 #'
 #' @keywords SBM MLSBM Gibbs Bayesian networks spatial gene expression
 #' @importFrom mlsbm fit_mlsbm
-#' @importFrom scran buildKNNGraph
+#' @importFrom Seurat FindNeighbors FindClusters
 #' @export
 #' @return A list of MCMC samples, including the MAP estimate of cluster indicators (z)
 #' 
 fit_banyan <- function(seurat_obj = NULL,
                        exp = NULL,
-                       coords = NULL,
+                       coords_df = NULL,
                        K,
                        n_pcs = 16,
                        R = NULL,
-                       z_init = TRUE,
                        a0 = 2,
                        b10 = 1,
                        b20 = 1,
@@ -37,57 +35,6 @@ fit_banyan <- function(seurat_obj = NULL,
                        verbose = TRUE,
                        s = 1.2)
 {
-  # case 1: user provides a Seurat object
-  if(!is.null(seurat_obj))
-  {
-    # check PCA reductions exist in the Seurat object
-    if(!is.null(seurat_obj@reductions$pca))
-    {
-      exp <- seurat_obj@reductions$pca@cell.embeddings[,1:n_pcs]
-    }
-    else
-    {
-      return("Error: No PCA reductions found in the supplied Seurat object. Try passing features through using the exp argument, or add PCA reductions to seurat_obj$reductions$pca.")
-    }
-    # check coordinates exist in the Seurat object
-    if(length(seurat_obj@images) != 1)
-    {
-      return("Error: Please provide Seurat object with exactly 1 image slot to access spatial coordinates from.")
-    }
-    else
-    {
-      coords_x <- seurat_obj@images[[1]]@coordinates[,1]
-      coords_y <- seurat_obj@images[[1]]@coordinates[,2]
-      coords <- data.frame(x = coords_x,
-                           y = coords_y)
-    }
-  }
-  
-  # case 2: user provided exp and coords directly
-  # check dimensions of everything
-  if(nrow(exp) != nrow(coords))
-  {
-    return("Error: Number of rows (cells) should match between exp and coords.")
-  }
-  else
-  {
-    n <- nrow(exp)
-  }
-  
-  if(nrow(exp) < ncol(exp))
-  {
-    return("Error: Number of features (columns) should be less than number of cells (rows) of exp.")
-  }
-  
-  if(ncol(coords) != 2)
-  {
-    return("Error: Coordinates should be an N x 2 matrix")
-  }
-  else
-  {
-    colnames(coords) <- c("x","y")
-  }
-  
   # set number of neighbors
   if(is.null(R))
   {
@@ -109,22 +56,72 @@ fit_banyan <- function(seurat_obj = NULL,
     }
   }
   
-  # build networks
-  # gene expression
-  exp <- as.matrix(exp)
-  G1 <- scran::buildKNNGraph(exp,r1,transposed = TRUE)
-  A1 <- igraph::as_adjacency_matrix(G1,sparse = FALSE)
-  # spatial
-  coords <- as.matrix(coords)
-  G2 <- scran::buildKNNGraph(coords,r2,transposed = TRUE)
-  A2 <- igraph::as_adjacency_matrix(G2,sparse = FALSE)
+  # user provides a Seurat object
+  if(!is.null(seurat_obj))
+  {
+    # check PCA reductions exist in the Seurat object
+    if(!is.null(seurat_obj@reductions$pca))
+    {
+      exp <- seurat_obj@reductions$pca@cell.embeddings[,1:n_pcs]
+      # check resolutions for inits
+      seurat_obj <- FindNeighbors(seurat_obj)
+      initialized = FALSE
+      while(!initialized)
+      {
+        seurat_obj <- FindClusters(seurat_obj, resolution = s)
+        zinit = seurat_obj$seurat_clusters
+        K_found = length(unique(zinit))
+        if(K_found > K)
+        {
+          initialized = TRUE
+        }
+        else
+        {
+          s = s*1.05
+        }
+      }
+    }
+    else
+    {
+      return("Error: No PCA reductions found in the supplied Seurat object. Try passing features through using the exp argument, or add PCA reductions to seurat_obj$reductions$pca.")
+    }
+    # check coordinates exist in the Seurat object
+    if(length(seurat_obj@images) != 1)
+    {
+      return("Error: Please provide Seurat object with exactly 1 image slot to access spatial coordinates from.")
+    }
+    else
+    {
+      coords_x <- seurat_obj@images[[1]]@coordinates[,1]
+      coords_y <- seurat_obj@images[[1]]@coordinates[,2]
+      coords <- data.frame(x = coords_x,
+                           y = coords_y)
+    }
+    
+    # build networks
+    # gene expression
+    exp <- as.matrix(exp)
+    A1 <- build_knn_graph(exp,r1)
+    # spatial
+    coords <- as.matrix(coords)
+    A2 <- build_knn_graph(coords,r2)
+    
+    # compile into multi-layer network
+    AL <- list(A1,A2)
+  }
   
-  # compile into multi-layer network
-  AL <- list(A1,A2)
+  else
+  {
+    A1 <- exp
+    A2 <- build_knn_graph(coords_df,r2)
+    # compile into multi-layer network
+    AL <- list(A1,A2)
+    coords <- coords_df
+  }
   
   fit <- mlsbm::fit_mlsbm(A = AL,
                           K = K,
-                          z_init = z_init,
+                          z_init = zinit,
                           a0 = a0,
                           b10 = b10,
                           b20 = b20, 

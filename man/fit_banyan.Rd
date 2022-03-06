@@ -7,11 +7,10 @@
 fit_banyan(
   seurat_obj = NULL,
   exp = NULL,
-  coords = NULL,
+  coords_df = NULL,
   K,
   n_pcs = 16,
   R = NULL,
-  z_init = TRUE,
   a0 = 2,
   b10 = 1,
   b20 = 1,
@@ -24,17 +23,15 @@ fit_banyan(
 \arguments{
 \item{seurat_obj}{A Seurat object with PCA reduction and spatial coordinates. If provided, the exp and coords arguments are ignored}
 
-\item{exp}{Gene expression dimension reduction feature matrix (e.g., PCs) with rows as cells and columns as features}
+\item{exp}{A binary adjacency matrix encoding the gene expression network. Not used if seurat_obj is provided.}
 
-\item{coords}{A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp.}
+\item{coords_df}{A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp. Not used if seurat_obj is provided.}
 
 \item{K}{The number of sub-populations to infer}
 
 \item{n_pcs}{The number of principal components to use from the Seurat object}
 
 \item{R}{A length 2 vector of integers for the number of neighbors to use. 1st element corresponds to the number of neighbors in gene expression network and 2nd element for spatial.}
-
-\item{z_init}{Logical for whether or not to initialize the community allocation vector using the Louvain algorithm applied to the gene expression layer.}
 
 \item{a0}{Dirichlet prior parameter (shared across all communities)}
 
