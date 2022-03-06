@@ -35,27 +35,7 @@ fit_banyan <- function(seurat_obj = NULL,
                        verbose = TRUE,
                        s = 1.2)
 {
-  # set number of neighbors
-  if(is.null(R))
-  {
-    r1 <- r2 <- round(sqrt(n))
-  }
-  else
-  {
-    # user provided some invalid but non-null # of neighbors
-    if(length(R) != 2)
-    {
-      return("Error: Please set R to either NULL or a length 2 vector of integer number of neighbors for each layer.")
-    }
-    else
-    {
-      # number of neighbors for gene expression
-      r1 <- round(R[1])
-      # number of neighbors for spatial
-      r2 <- round(R[2])
-    }
-  }
-  
+
   # user provides a Seurat object
   if(!is.null(seurat_obj))
   {
@@ -96,6 +76,28 @@ fit_banyan <- function(seurat_obj = NULL,
       coords_y <- seurat_obj@images[[1]]@coordinates[,2]
       coords <- data.frame(x = coords_x,
                            y = coords_y)
+      n <- nrow(coords)
+    }
+    
+    # set number of neighbors
+    if(is.null(R))
+    {
+      r1 <- r2 <- round(sqrt(n))
+    }
+    else
+    {
+      # user provided some invalid but non-null # of neighbors
+      if(length(R) != 2)
+      {
+        return("Error: Please set R to either NULL or a length 2 vector of integer number of neighbors for each layer.")
+      }
+      else
+      {
+        # number of neighbors for gene expression
+        r1 <- round(R[1])
+        # number of neighbors for spatial
+        r2 <- round(R[2])
+      }
     }
     
     # build networks
@@ -109,14 +111,36 @@ fit_banyan <- function(seurat_obj = NULL,
     # compile into multi-layer network
     AL <- list(A1,A2)
   }
-  
   else
   {
+    n <- nrow(coords_df)
+    
+    # set number of neighbors
+    if(is.null(R))
+    {
+      r1 <- r2 <- round(sqrt(n))
+    }
+    else
+    {
+      # user provided some invalid but non-null # of neighbors
+      if(length(R) != 2)
+      {
+        return("Error: Please set R to either NULL or a length 2 vector of integer number of neighbors for each layer.")
+      }
+      else
+      {
+        # number of neighbors for gene expression
+        r1 <- round(R[1])
+        # number of neighbors for spatial
+        r2 <- round(R[2])
+      }
+    }
     A1 <- exp
     A2 <- build_knn_graph(coords_df,r2)
     # compile into multi-layer network
     AL <- list(A1,A2)
     coords <- coords_df
+    zinit <- sample(1:K, size = nrow(coords), replace = TRUE)
   }
   
   fit <- mlsbm::fit_mlsbm(A = AL,
