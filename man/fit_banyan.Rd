@@ -8,6 +8,7 @@ fit_banyan(
   seurat_obj = NULL,
   exp = NULL,
   coords_df = NULL,
+  z_init = NULL,
   K,
   n_pcs = 16,
   R = NULL,
@@ -26,6 +27,8 @@ fit_banyan(
 \item{exp}{A binary adjacency matrix encoding the gene expression network. Not used if seurat_obj is provided.}
 
 \item{coords_df}{A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp. Not used if seurat_obj is provided.}
+
+\item{z_init}{An optional initialization for cluster indicators. Ignored if seurat_obj is provided.}
 
 \item{K}{The number of sub-populations to infer}
 

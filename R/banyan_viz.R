@@ -55,7 +55,7 @@ banyan_viz <- function(fit,
     {
       if(!is.null(feature))
       {
-        coords_df$Uncertainty = fit$Uncertainty
+        coords_df$Uncertainty = fit$U_scores
         g = ggplot(data = coords_df, aes(x = .data$x, 
                                          y = .data$y, 
                                          color = feature, 
@@ -67,7 +67,7 @@ banyan_viz <- function(fit,
       }
       else
       {
-        coords_df$Uncertainty = fit$Uncertainty
+        coords_df$Uncertainty = fit$U_scores
         g = ggplot(data = coords_df, aes(x = .data$x, 
                                          y = .data$y, 
                                          color = .data$Label, 
@@ -119,7 +119,7 @@ banyan_viz <- function(fit,
           {
             if(!is.null(feature))
             {
-              coords_df$Uncertainty = fit$Uncertainty
+              coords_df$Uncertainty = fit$U_scores
               g = ggplot(data = coords_df, aes(x = .data$x, 
                                                y = .data$y, 
                                                color = feature, 
@@ -131,7 +131,7 @@ banyan_viz <- function(fit,
             }
             else
             {
-              coords_df$Uncertainty = fit$Uncertainty
+              coords_df$Uncertainty = fit$U_scores
               g = ggplot(data = coords_df, aes(x = .data$x, 
                                                y = .data$y, 
                                                color = .data$Label, 
