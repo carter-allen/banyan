@@ -2,6 +2,7 @@
 #'
 #' This function allows you to fit the Bayesian multi-layer SBM for integration of spatial and gene expression data for identifying cell sub-populations
 #' @param seurat_obj A Seurat object with PCA reduction and spatial coordinates. If provided, the exp and coords arguments are ignored
+#' @param labels User-defined tissue architecture labels as a length-n vector. If provided, only posterior of ACC parameters will be provided and tissue architecture identification will be skipped.
 #' @param exp A binary adjacency matrix encoding the gene expression network. Not used if seurat_obj is provided. 
 #' @param coords_df A matrix or data frame with rows as cells and 2 columns for coordinates. Rows should be ordered the same as in exp. Not used if seurat_obj is provided. 
 #' @param z_init An optional initialization for cluster indicators. Ignored if seurat_obj is provided.
@@ -23,6 +24,7 @@
 #' @return A list of MCMC samples, including the MAP estimate of cluster indicators (z)
 #' 
 fit_banyan <- function(seurat_obj = NULL,
+                       labels = NULL,
                        exp = NULL,
                        coords_df = NULL,
                        z_init = NULL,
@@ -45,22 +47,26 @@ fit_banyan <- function(seurat_obj = NULL,
     if(!is.null(seurat_obj@reductions$pca))
     {
       exp <- seurat_obj@reductions$pca@cell.embeddings[,1:n_pcs]
-      # check resolutions for inits
-      seurat_obj <- FindNeighbors(seurat_obj)
-      initialized = FALSE
-      while(!initialized)
+      if(is.null(labels))
       {
-        seurat_obj <- FindClusters(seurat_obj, resolution = s)
-        zinit = seurat_obj$seurat_clusters
-        K_found = length(unique(zinit))
-        if(K_found > K)
+        message("Initializing")
+        # check resolutions for inits
+        seurat_obj <- FindNeighbors(seurat_obj)
+        initialized = FALSE
+        while(!initialized)
         {
-          initialized = TRUE
-        }
-        else
-        {
-          s = s*1.05
-        }
+          seurat_obj <- FindClusters(seurat_obj, resolution = s)
+          zinit = seurat_obj$seurat_clusters
+          K_found = length(unique(zinit))
+          if(K_found > K)
+          {
+            initialized = TRUE
+          }
+          else
+          {
+            s = s*1.05
+          }
+        } 
       }
     }
     else
@@ -152,26 +158,37 @@ fit_banyan <- function(seurat_obj = NULL,
     }
   }
   
-  fit <- mlsbm::fit_mlsbm(A = AL,
-                          K = K,
-                          z_init = zinit,
-                          a0 = a0,
-                          b10 = b10,
-                          b20 = b20, 
-                          n_iter = n_iter,
-                          burn = burn,
-                          verbose = verbose,
-                          r = s)
-  # return coordinates for plotting
-  fit$coords = as.data.frame(coords)
-  
-  # get BIC
-  lls = fit$logf
-  K = fit$K
-  n = length(lls)
-  K_param = choose(K,2) + K + n
-  bic =  (max(lls) + 2*K_param*log(n))
-  fit$bic = bic
+  if(!is.null(labels))
+  {
+    message("Computing ACC parameters based on provided tissue architecture labels")
+    fit <- get_ACC(z = labels,
+                   AL = AL, 
+                   b10 = b10, 
+                   b20 = b20)
+  }
+  else
+  {
+    fit <- mlsbm::fit_mlsbm(A = AL,
+                            K = K,
+                            z_init = zinit,
+                            a0 = a0,
+                            b10 = b10,
+                            b20 = b20, 
+                            n_iter = n_iter,
+                            burn = burn,
+                            verbose = verbose,
+                            r = s)
+    # return coordinates for plotting
+    fit$coords = as.data.frame(coords)
+    
+    # get BIC
+    lls = fit$logf
+    K = fit$K
+    n = length(lls)
+    K_param = choose(K,2) + K + n
+    bic =  (max(lls) + 2*K_param*log(n))
+    fit$bic = bic 
+  }
   
   # return as banyan object
   class(fit) <- "banyan"

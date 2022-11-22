@@ -6,6 +6,7 @@
 \usage{
 fit_banyan(
   seurat_obj = NULL,
+  labels = NULL,
   exp = NULL,
   coords_df = NULL,
   z_init = NULL,
@@ -23,6 +24,8 @@ fit_banyan(
 }
 \arguments{
 \item{seurat_obj}{A Seurat object with PCA reduction and spatial coordinates. If provided, the exp and coords arguments are ignored}
+
+\item{labels}{User-defined tissue architecture labels as a length-n vector. If provided, only posterior of ACC parameters will be provided and tissue architecture identification will be skipped.}
 
 \item{exp}{A binary adjacency matrix encoding the gene expression network. Not used if seurat_obj is provided.}
 

@@ -71,12 +71,6 @@ plot_connectivity_intervals <- function(fit)
     geom_point() + 
     geom_errorbar(aes(ymin = .data$LB, ymax = .data$UB)) + 
     theme_classic() + 
-    # scale_color_viridis_c(option = "A") + 
-    theme(axis.text.x = element_text(family = "serif",size = 12),
-          axis.text.y = element_text(family = "serif",size = 12),
-          text = element_text(family = "serif"),
-          axis.title.x = element_text(family = "serif", face = "bold"),
-          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population Pair") + 
     ylab("Connectivity") +
     ggtitle("Within Community Connectivity")
@@ -86,12 +80,6 @@ plot_connectivity_intervals <- function(fit)
     geom_point() + 
     geom_errorbar(aes(ymin = .data$LB, ymax = .data$UB)) + 
     theme_classic() + 
-    # scale_color_viridis_c(option = "A") + 
-    theme(axis.text.x = element_text(family = "serif",size = 12),
-          axis.text.y = element_text(family = "serif",size = 12),
-          text = element_text(family = "serif"),
-          axis.title.x = element_text(family = "serif", face = "bold"),
-          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population Pair") + 
     ylab("Connectivity") +
     ggtitle("Between Community Connectivity")

@@ -71,11 +71,6 @@ plot_connectivity_matrix <- function(fit)
     theme_classic() + 
     scale_fill_viridis_c(option = "A") + 
     coord_flip() +
-    theme(axis.text.x = element_text(family = "serif",size = 12),
-          axis.text.y = element_text(family = "serif",size = 12),
-          text = element_text(family = "serif"),
-          axis.title.x = element_text(family = "serif", face = "bold"),
-          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population") + 
     ylab("Cell Sub-Population") + 
     ggtitle("Within Community Connectivity") +
@@ -89,11 +84,6 @@ plot_connectivity_matrix <- function(fit)
     theme_classic() + 
     scale_fill_viridis_c(option = "A") + 
     coord_flip() +
-    theme(axis.text.x = element_text(family = "serif",size = 12),
-          axis.text.y = element_text(family = "serif",size = 12),
-          text = element_text(family = "serif"),
-          axis.title.x = element_text(family = "serif", face = "bold"),
-          axis.title.y = element_text(family = "serif",angle = 90, face = "bold")) + 
     xlab("Cell Sub-Population") + 
     ylab("Cell Sub-Population") + 
     ggtitle("Between Community Connectivity") +

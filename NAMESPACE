@@ -3,6 +3,7 @@
 export(banyan_viz)
 export(build_knn_graph)
 export(fit_banyan)
+export(get_ACC)
 export(get_scores)
 export(plot_adjacency_matrix)
 export(plot_connectivity_intervals)
